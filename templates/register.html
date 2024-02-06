@@ -5,20 +5,51 @@
 {% endblock %}
 
 {% block main %}
-    <form action="/register" method="post" class="pt-5">
-        <div class="mb-3">
-            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="username" name="username" placeholder="Username" type="text">
-        </div>
-        <div class="mb-3">
-            <input class="form-control mx-auto w-auto" id="password" name="password" placeholder="Password" type="password">
-        </div>
-        <div class="mb-3">
-            <input class="form-control mx-auto w-auto" id="confirmation" name="confirmation" placeholder="Repeat Password" type="password">
-        </div>
-        <div class="text-center">
-            <button class="btn btn-primary !important btn-custom" type="submit">Register</button>
-
-
-        </div>
+    <form class="flex flex-col min-h-screen bg-[#0b0813]" action="/register" method="post">
+            <header class="flex items-center justify-center py-4">
+                <a class="flex items-center gap-2" href="#" rel="ugc">
+                  <img class="w-10 h-10" src="/static/images/logo.svg" alt="Solace Studio" />
+                  <span class="text-white text-2xl font-bold">Solace Studio</span>
+                </a>
+              </header>
+           
+        <main class="flex flex-col items-center justify-center p-4 space-y-4">
+            <div class="w-full max-w-sm bg-white dark:bg-gray-800 rounded-lg shadow-md border-2 border-[#6b44ff] p-6">
+                <div class="space-y-2">
+                    <div class="space-y-2">
+                        <h1 class="text-3xl font-bold text-black">Register</h1>
+                        <p class="text-gray-400 dark:text-gray-300">Enter your details to get started</p>
+                      </div>
+                    </div>
+    
+                <div class="space-y-4">
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="username">Username</label>
+                        <input type="text" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" id="username" name="username" placeholder="admin@bennett.edu.in" required autocomplete="off" autofocus>
+                    </div>
+    
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="password">Password</label>
+                        <input type="password" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" id="password" name="password" required>
+                    </div>
+    
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="confirmation">Repeat Password</label>
+                        <input type="password" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" id="confirmation" name="confirmation" required>
+                    </div>
+    
+                    <button type="submit" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-primary/90 h-10 px-4 py-2 w-full bg-[#6b44ff] text-white">Register</button>
+                </div>
+    
+                </div>
+                <div class="text-center text-white">
+                    Already have an account?
+                    <a class="underline" href="/register" rel="ugc">
+                     Log in
+                    </a>
+                  </div>
+        </main>
+    </div>
     </form>
+    
 {% endblock %}
