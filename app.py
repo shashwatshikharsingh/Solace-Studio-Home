@@ -31,7 +31,9 @@ def get_db():
     if not hasattr(g, 'sqlite_db'):
         g.sqlite_db = sqlite3.connect("users.db")
         g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL, hash TEXT NOT NULL)")
-        g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS games (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, description TEXT NOT NULL, game_link TEXT NOT NULL, picture TEXT NOT NULL, userid INTEGER NOT NULL)")
+        g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS games (id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT NOT NULL,description TEXT NOT NULL,game_link TEXT NOT NULL,userid INTEGER NOT NULL,FOREIGN KEY (userid) REFERENCES users (id))")
+        g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS game_images (id INTEGER PRIMARY KEY AUTOINCREMENT,game_id INTEGER NOT NULL,picture TEXT NOT NULL,FOREIGN KEY (game_id) REFERENCES games (id))")
+
     return g.sqlite_db
 
 
@@ -61,18 +63,29 @@ def submit():
             return apology("Please Enter a Description")
         if not request.form.get("game_link"):
             return apology("Please Enter a Game Link")
-        if not request.files.get("picture"):
+        if not request.files.getlist("picture"):
             return apology("Please Enter a Picture")
         
         name = request.form.get("name")
         description = request.form.get("description")
         game_link = request.form.get("game_link")
-        picture = request.files.get("picture")
-        picture_string = base64.b64encode(picture.read()).decode("utf-8")
-        db = get_db()
-        cursor = db.cursor()
-        cursor.execute("INSERT INTO games (name,description,game_link,picture,userid) VALUES (?,?,?,?,?)",(name,description,game_link,picture_string,session["user_id"]))
-        db.commit()
+        pictures = request.files.getlist("picture")
+        try:
+            db = get_db()
+            cursor = db.cursor()
+        
+            cursor.execute("INSERT INTO games (name, description, game_link, userid) VALUES (?, ?, ?, ?)", (name, description, game_link, session["user_id"]))
+            game_id = cursor.lastrowid
+        
+            for picture in pictures:
+                picture_string = base64.b64encode(picture.read()).decode("utf-8")
+                cursor.execute("INSERT INTO game_images (game_id, picture) VALUES (?, ?)", (game_id, picture_string))
+        
+            db.commit()
+        except Exception as e:
+            print(e)
+            return apology("Error Submitting Game")
+        
         return render_template("submit.html",success=True)
     else:
         return render_template("submit.html")
