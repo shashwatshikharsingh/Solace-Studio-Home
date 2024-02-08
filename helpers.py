@@ -1,5 +1,6 @@
 from flask import redirect, render_template, session
 from functools import wraps
+import os
 
 
 def apology(message, code=400):
@@ -29,3 +30,8 @@ def login_required(f):
             return redirect("/login")
         return f(*args, **kwargs)
     return decorated_function
+
+def delete_images():
+    for picture in os.listdir("static/temp"):
+        os.remove(picture)
+    return True
