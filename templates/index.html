@@ -5,6 +5,55 @@
 {% endblock %}
 
 {% block main %}
+<body class="bg-[#0b0813] relative min-h-screen w-full h-full">
+    <nav class="bg-[#0b0813] flex align-middle justify-between h-24 items-center">
+        <div class="text-gray-300 flex flex-row gap-0 ml-5 hover:text-purple cursor-pointer transition-all duration-200 relative group">
+            <img src="/static/assets/logo.png" alt="" class="w-full h-28">
+            <a href="index.html" class="text-gray-300 py-8 font-bold ml-24 no-underline font-serif hover:text-[#6b44ff] text-2xl absolute">Solace Studio</a>
+            <!-- <h1 class="text-gray-300 py-8 font-bold ml-24 font-serif hover:text-purple text-2xl absolute">Solace Studio</h1> -->
+        </div>
+
+        <div class="navigation flex">
+            <ul class="lg:flex lg:gap-11 text-lg items-center justify-between hidden">
+                <li class="relative text-gray-300 font-bold py-3 hover:text-[#6b44ff] cursor-pointer transition-all duration-200 group">
+                    <a href="index.html" class="text-gray-300 no-underline text-sm font-mullish font-bold py-3 hover:text-[#6b44ff] cursor-pointer transition-all duration-200 group">Home</a>
+                    <div class="absolute -left-3 -bottom-1 border-text-purple-500 p-2 mx-4 no-underline rounded-full h-1 bg-purple hidden group-hover:block transition-all duration-200"></div>
+                </li>
+
+                <li class="text-gray-300 font-mullish font-bold py-3 hover:text-purple cursor-pointer transition-all duration-200 relative group">
+                    <a href="" class="text-gray-300 no-underline text-sm font-mullish font-bold py-3 hover:text-[#6b44ff] cursor-pointer transition-all duration-200 group">Events</a>
+                    <div class="absolute -left-2 -bottom-1 border-text-purple p-2 mx-6 rounded-full h-1 bg-purple hidden group-hover:block transition-all duration-200"></div>
+                </li>
+
+                <li class="text-gray-300 font-mullish font-bold py-3 hover:text-purple cursor-pointer transition-all duration-200 relative group">
+                    <a href="" class="text-gray-300 no-underline text-sm font-mullish font-bold py-3 hover:text-[#6b44ff] cursor-pointer transition-all duration-200 group">Teams</a>
+                    <div class="absolute -left-8 -bottom-1 border-text-purple-500 p-2 mx-5 rounded-full h-1 bg-purple hidden group-hover:block transition-all duration-200"></div>
+                </li>
+            </ul>
+        </div>
+
+        <div class="text-gray-300 m-4 border-2 rounded-full py-3 px-3 font-mullish text-sm no-underline hover:bg-purple">
+            <a href="" class="text-sm text-gray-300 hover:text-gray-300 no-underline font-mullish font-bold">Submit Your Game</a>
+        </div>
+    </nav> 
+
+    <div class="hero-section overflow-hidden items-center flex justify-center p-5 min-h-screen">
+        <img src="/static/assets/hero.png" class="w-full" alt="">
+    </div>
+
+    <div class="max-h-[100%] text-gray-300 no-underline min-w-0 min-h-screen max-w-full">
+        <div class="text-gray-300 flex pt-20 no-underline relative">
+            <a href="" class="absolute left-80 font-guirella text-gray-300 no-underline text-7xl">Quick Play!</a>
+            <p class="absolute top-48 ml-5 left-80">Play,beat other players & win $Blok,the play-
+                <br>
+                to earn token in the Solace studio.
+            </p>
+            <img src="/static/assets/quickplay.png" alt="" class="absolute top-72 left-80 mb-20 pb-32">
+        </div>
+    </div>
+    
+    
+</body>
 
 
 
