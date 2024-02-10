@@ -18,6 +18,8 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
+admin_ids = [1]
+
 
 
 
@@ -120,6 +122,78 @@ def games():
         return apology("Error Fetching Games")
         
     return render_template("games.html",games=game_details)
+
+@app.route("/approve",methods=["GET"])
+@login_required
+def approve():
+    """Approve Games to be Displayed"""
+    if session["user_id"] not in admin_ids:
+        return apology("You are not authorized to approve games")
+    
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM games WHERE is_Verified = 0")
+        games = cursor.fetchall()
+        game_details = []
+
+        for game in games:
+            cursor.execute("SELECT picture FROM game_images WHERE game_id = ?", (game[0],))
+            pictures = cursor.fetchall()
+            index = 0
+            picture_address = []
+
+            for picture in pictures: 
+                image_address = f"./static/temp/admin/{game[1]}-{index}.png"
+
+                if not os.path.exists(image_address): 
+                    with open(image_address, "wb") as f:
+                        f.write(base64.b64decode(picture[0]))
+                    picture_address.append(image_address)
+
+                else:
+                    picture_address.append(image_address)
+                index += 1
+
+            game_details.append({"id":game[0],"name": game[1], "description": game[2], "game_link": game[3], "pictures": picture_address})
+    except Exception as e:
+        print(e)
+        return apology("Error Fetching Games")
+
+    return render_template("approve.html",games=game_details)
+
+
+@app.route("/accept/<int:id>",methods=["POST"])
+@login_required
+def accept(id):
+    """Accept a Game to be Displayed"""
+    if session["user_id"] not in admin_ids:
+        return apology("You are not authorized to approve games")
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("UPDATE games SET is_Verified = 1 WHERE id = ?", (id,))
+        db.commit()
+    except Exception as e:
+        print(e)
+        return apology("Error Accepting Game")
+    return render_template("approve.html",accept=True)
+
+@app.route("/reject/<int:id>",methods=["POST"])
+@login_required
+def reject(id):
+    """Reject a Game to be Displayed"""
+    if session["user_id"] not in admin_ids:
+        return apology("You are not authorized to approve games")
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("DELETE FROM games WHERE id = ?", (id,))
+        db.commit()
+    except Exception as e:
+        print(e)
+        return apology("Error Rejecting Game")
+    return render_template("approve.html",reject=True)
 
 
 
