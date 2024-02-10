@@ -7,6 +7,34 @@
 {% block main %}
 
 
+<body class="bg-[#0b0813] relative min-h-screen w-full h-full">
+
+    {% if subscribe %}
+    <div class="bg-green-100 border border-[#6b44ff] text-[#0b0813] px-4 py-3 rounded relative" role="alert">
+        <strong class="font-bold">Got it!</strong>
+        <span class="block sm:inline">We will mail you with latest Bennett News.</span>
+      </div>
+        </span>
+    {% endif %}
+    <div class="hero-section overflow-hidden items-center flex justify-center p-5 min-h-screen">
+        <img src="/static/assets/hero.png" class="w-full" alt="">
+    </div>
+
+    <div class="max-h-[100%] text-gray-300 no-underline min-w-0 min-h-screen max-w-full">
+        <div class="text-gray-300 flex pt-20 no-underline relative">
+            <a href="" class="absolute left-80 font-guirella text-gray-300 no-underline text-7xl">Adventure Racing</a>
+            <p class="absolute top-48 ml-5 left-80">Our First Multiplayer Game is Launching
+                <br>
+                on March 1st 2024. Stay Tuned!
+            </p>
+            <img src="/static/assets/quickplay.png" alt="" class="absolute top-72 left-80 mb-20 pb-32">
+        </div>
+    </div>
+
+
+</body>
+
+
 
 
 {% endblock %}

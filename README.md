@@ -2,6 +2,14 @@
 
 **This project is a Flask web application with Tailwind CSS for styling.**
 
+**# Authors**
+
+** - [Shashwat Shikhar Singh](https://github.com/shashwatshikharsingh)**
+** - [Hardik Sharma](https://github.com/hardiksharma23)**
+** - [Tushar Harsan](https://github.com/TusharHarsan)**
+** - [Rachell](https://github.com/Richie3935)**
+
+
 ## Prerequisites
 
 - Python 3.6 or later
@@ -48,7 +56,7 @@
 To automatically recompile Tailwind CSS when you make changes to your CSS files, run:
 
 ```bash
-npm buildcss
+npm run buildcss
 ```
 
 This will start a watcher that monitors for changes and recompiles the CSS.

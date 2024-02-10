@@ -33,7 +33,7 @@ def get_db():
         g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL, hash TEXT NOT NULL)")
         g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS games (id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT NOT NULL,description TEXT NOT NULL,game_link TEXT NOT NULL,userid INTEGER NOT NULL,is_Verified INTEGER NOT NULL,FOREIGN KEY (userid) REFERENCES users (id))")
         g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS game_images (id INTEGER PRIMARY KEY AUTOINCREMENT,game_id INTEGER NOT NULL,picture TEXT NOT NULL,FOREIGN KEY (game_id) REFERENCES games (id))")
-
+        g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS newsletter (id INTEGER PRIMARY KEY AUTOINCREMENT,email TEXT NOT NULL)")
     return g.sqlite_db
 
 
@@ -45,7 +45,6 @@ def close_db(error):
 
 
 @app.route("/",methods=["GET"])
-@login_required
 def index():
     """Main Page"""
     return render_template("index.html")
@@ -194,6 +193,22 @@ def reject(id):
         print(e)
         return apology("Error Rejecting Game")
     return render_template("approve.html",reject=True)
+
+@app.route("/subscribe",methods=["POST"])
+def subscribe():
+    """Subscribe to the Newsletter"""
+    email = request.form.get("email")
+    if not email:
+        return apology("Please Enter an Email")
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("INSERT INTO newsletter (email) VALUES (?)", (email,))
+        db.commit()
+    except Exception as e: 
+        print(e)
+        return apology("Error Subscribing")
+    return render_template("index.html",subscribe=True)
 
 
 
