@@ -1,3 +1,180 @@
+*{
+    margin: 0%;
+    padding: 0%;
+}
+
+form{
+    display:flex;
+    flex-direction:row;
+    padding: 1px;    
+}
+
+.main{
+    height: 605px;
+}
+
+.msg{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 5px;
+    color: white;
+    
+}
+
+.msg1{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 5px;
+    color: white;
+
+}
+
+.submsg{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 1px;
+    color: white;
+    
+}
+
+.top{
+    margin: 243px;
+    margin-bottom: 210px;
+    padding-bottom: 0%;
+}
+
+body{
+    background-color: #0b0813;
+}
+
+h2{
+    font-size: 50px;
+    padding-bottom: 20px;
+}
+h1{
+    font-size: 55px;   
+}
+
+.bottomspace{
+    margin-bottom: 30px;
+}
+
+
+.container{
+    width: 740px;
+    height: 50px;
+    border: none;
+    position: relative;
+    display: inline-block;   
+}
+.button{
+    border: none;
+    background-color: white;
+    border-radius: 150px;
+    width: 150px;
+    height: 50px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transform: translate(-2%, 13%);  
+    border: none;
+    background-color: #6b44ff;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.enterbox{
+    width: 400px;
+    margin-left: 255px;
+    padding-left: 50px;
+    margin-right: 10px;
+    border: none;
+    padding-right: 40px;
+    height: 60px; 
+    font-size: 1rem; 
+}
+
+input{
+    width: 200px;
+    border-radius: 50px;
+}
+
+.solace{
+    color: white;
+    font-size: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-style: italic;
+}
+
+.container1{
+    
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    padding-top: 100px;
+}
+
+.outer{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-top: 1px , solid , white;
+    height: 80px;
+}
+
+.color{
+    color: white;
+    display: inline;
+    padding-left: 50px;
+    margin: 0%;   
+}
+
+.left{
+    display: flex;
+    justify-content: start;
+}
+
+.copyright{
+    padding-right: 370px ;
+    width: 500px;
+}
+
+.icons{
+    padding-left: 260px;
+    margin-right: 50px;
+    display: flex;
+}
+
+.facebook{
+    height: 20px;
+    width: 50px;
+}
+.animat:hover{
+    color:#6b44ff; 
+    transition: 150ms;
+}
+.facebook{
+    padding-right: 25px;
+}
+
+.button:hover{
+    background-color: #8869FF;
+    transition: 250ms;
+}
+
+
+
+
+
+
+
+
 
 
 
