@@ -1,5 +1,5 @@
 import base64
-from flask import Flask, flash, redirect, render_template, request, session,g,jsonify,url_for
+from flask import Flask, flash, redirect, render_template, request, session,g,jsonify
 from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -27,13 +27,15 @@ admin_ids = [1]
 
 
 def get_db():
-    """Open a new database connection if there is none yet for the current application context."""
+    """Open a new database connection if there is none yet for the current application context. Create Tables if they do not exist."""
     if not hasattr(g, 'sqlite_db'):
         g.sqlite_db = sqlite3.connect("users.db")
         g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL, hash TEXT NOT NULL)")
         g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS games (id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT NOT NULL,description TEXT NOT NULL,game_link TEXT NOT NULL,userid INTEGER NOT NULL,is_Verified INTEGER NOT NULL,FOREIGN KEY (userid) REFERENCES users (id))")
         g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS game_images (id INTEGER PRIMARY KEY AUTOINCREMENT,game_id INTEGER NOT NULL,picture TEXT NOT NULL,FOREIGN KEY (game_id) REFERENCES games (id))")
         g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS newsletter (id INTEGER PRIMARY KEY AUTOINCREMENT,email TEXT NOT NULL)")
+        g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY AUTOINCREMENT, heading TEXT NOT NULL, subheading TEXT NOT NULL, author TEXT NOT NULL, description TEXT NOT NULL, date TEXT NOT NULL, userid INTEGER NOT NULL, FOREIGN KEY (userid) REFERENCES users (id))")
+        g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS event_images (id INTEGER PRIMARY KEY AUTOINCREMENT, event_id INTEGER NOT NULL, picture TEXT NOT NULL, FOREIGN KEY (event_id) REFERENCES events (id))")
     return g.sqlite_db
 
 
@@ -88,6 +90,87 @@ def submit():
         return render_template("submit.html",success=True)
     else:
         return render_template("submit.html")
+    
+@app.route("/event/<int:id>",methods=["GET"])
+def event(id):
+    """Event Page for Each Event"""
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM events WHERE id = ?", (id,))
+        event = cursor.fetchone()
+        cursor.execute("SELECT picture FROM event_images WHERE event_id = ?", (id,))
+        pictures = cursor.fetchall()
+        picture_address = []
+        index = 0
+        for picture in pictures: 
+                image_address = f"./static/temp/events/{event[1]}-{index}.png"
+                if not os.path.exists(image_address): 
+                    with open(image_address, "wb") as f:
+                        f.write(base64.b64decode(picture[0]))
+                    picture_address.append(image_address)
+                else:
+                    picture_address.append(image_address)
+                index += 1
+        event_details = {"heading": event[1], "subheading": event[2], "author": event[3], "description": event[4], "date": event[5], "event_images":picture_address}
+
+    except Exception as e:
+        print(e)
+        return apology("Error Fetching Event")
+    return render_template("event.html",event=event_details)
+
+
+@app.route("/submit_event",methods=["GET","POST"])
+@login_required
+def submit_event():
+    """Submit a New Event with Name Descriptions Images in Base64 and Link to the Event"""
+    if session["user_id"] not in admin_ids:
+        return apology("You are not authorized to submit events")
+    
+    if request.method == "POST":
+        if not request.form.get("heading"):
+            return apology("Please Enter a Heading")
+        if not request.form.get("subheading"):
+            return apology("Please Enter a Sub Heading")
+        if not request.form.get("author"):
+            return apology("Please Enter a Author")
+        if not request.files.getlist("picture"):
+            return apology("Please Enter a Picture")
+        if not request.form.get("description"):
+            return apology("Please Enter a Description")
+        if not request.form.get("date"):
+            return apology("Please Enter a Date")
+        
+        heading = request.form.get("heading")
+        subheading = request.form.get("subheading")
+        author = request.form.get("author")
+        description = request.form.get("description")
+        date = request.form.get("date")
+        pictures = request.files.getlist("picture")
+
+
+        try:
+            db = get_db()
+            cursor = db.cursor()
+
+            cursor.execute("INSERT INTO events (heading, subheading, author, description, date, userid) VALUES (?, ?, ?, ?, ?, ?)", (heading, subheading, author, description, date, session["user_id"]))
+        
+            event_id = cursor.lastrowid
+        
+            for picture in pictures:
+                picture_string = base64.b64encode(picture.read())
+                cursor.execute("INSERT INTO event_images (event_id, picture) VALUES (?, ?)", (event_id, picture_string))
+        
+            db.commit()
+        except Exception as e:
+            print(e)
+            return apology("Error Submitting Event")
+        
+        return render_template("submit_event.html",success=True)
+    else:
+        return render_template("submit_event.html")
+
+
 
 
 @app.route("/games",methods=["GET"])
@@ -193,6 +276,11 @@ def reject(id):
         print(e)
         return apology("Error Rejecting Game")
     return render_template("approve.html",reject=True)
+
+@app.route("/about",methods=["GET"])
+def about():
+    """About Page"""
+    return render_template("about.html")
 
 @app.route("/subscribe",methods=["POST"])
 def subscribe():

@@ -2,12 +2,14 @@
 
 **This project is a Flask web application with Tailwind CSS for styling.**
 
-**# Authors**
+# Authors
 
-** - [Shashwat Shikhar Singh](https://github.com/shashwatshikharsingh)**
-** - [Hardik Sharma](https://github.com/hardiksharma23)**
-** - [Tushar Harsan](https://github.com/TusharHarsan)**
-** - [Rachell](https://github.com/Richie3935)**
+- [Shashwat Shikhar Singh](https://github.com/shashwatshikharsingh)
+- [Hardik Sharma](https://github.com/hardiksharma23)
+- [Tushar Harsan](https://github.com/TusharHarsan)
+- [Rachell](https://github.com/Richie3935)
+
+
 
 
 ## Prerequisites

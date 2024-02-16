@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+
+{% block title %}
+
+{{event.heading}}
+    
+{% endblock %}
+
+
+{% block main %}
+
+<body class="bg-[#0b0813]">
+<div class="min-h-screen bg-[#0b0813] py-10">
+  <div class="container mx-auto px-8">
+    <main>
+      <div class="py-12">
+        <div class="text-center">
+          <div class="text-sm uppercase tracking-widest text-[#6b44ff]">{{event.subheading}}</div>
+          <div class="mt-4 text-5xl font-bold text-gray-300">{{event.heading}}</div>
+          <div class="flex justify-center mt-4">
+            <img src="/static/assets/logo.png" alt="Solace Logo" class="rounded-full max-w-12 max-h-12">
+            <div class="ml-4">
+              <div class="text-sm text-gray-600">{{event.author}}</div>
+              <div class="text-sm text-gray-500">{{event.date}}</div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-12">
+          {% for image in event.event_images %}
+            <img src="{{url_for('static',filename=image[9:])}}" alt="Event image" class="w-full max-w-7xl h-full object-cover rounded-lg">
+          {% endfor %}
+        </div>
+        <div class="mt-12 text-center text-gray-600">
+          <p>{{event.description}}</p>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+
+
+
+
+{% endblock %}
