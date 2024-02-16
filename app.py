@@ -18,10 +18,6 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-admin_ids = [1]
-
-
-
 
 
 
@@ -30,7 +26,7 @@ def get_db():
     """Open a new database connection if there is none yet for the current application context. Create Tables if they do not exist."""
     if not hasattr(g, 'sqlite_db'):
         g.sqlite_db = sqlite3.connect("users.db")
-        g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL, hash TEXT NOT NULL)")
+        g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL, hash TEXT NOT NULL,email TEXT NOT NULL, is_admin INTEGER NOT NULL)")
         g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS games (id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT NOT NULL,description TEXT NOT NULL,game_link TEXT NOT NULL,userid INTEGER NOT NULL,is_Verified INTEGER NOT NULL,FOREIGN KEY (userid) REFERENCES users (id))")
         g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS game_images (id INTEGER PRIMARY KEY AUTOINCREMENT,game_id INTEGER NOT NULL,picture TEXT NOT NULL,FOREIGN KEY (game_id) REFERENCES games (id))")
         g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS newsletter (id INTEGER PRIMARY KEY AUTOINCREMENT,email TEXT NOT NULL)")
@@ -124,8 +120,16 @@ def event(id):
 @login_required
 def submit_event():
     """Submit a New Event with Name Descriptions Images in Base64 and Link to the Event"""
-    if session["user_id"] not in admin_ids:
-        return apology("You are not authorized to submit events")
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT is_admin FROM users WHERE id = ?", (session["user_id"],))
+        is_admin = cursor.fetchone()[0]
+        if not is_admin:
+            return apology("You are not authorized to manage users")
+    except Exception as e:
+        print(e)
+        return apology("Error Fetching Users")
     
     if request.method == "POST":
         if not request.form.get("heading"):
@@ -205,12 +209,102 @@ def games():
         
     return render_template("games.html",games=game_details)
 
+@app.route("/manage_users",methods=["GET","POST"])
+@login_required
+def manage_users():
+    """Manage Users"""
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT is_admin FROM users WHERE id = ?", (session["user_id"],))
+        is_admin = cursor.fetchone()[0]
+        if not is_admin:
+            return apology("You are not authorized to manage users")
+    except Exception as e:
+        print(e)
+        return apology("Error Fetching Users")
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM users")
+        users = cursor.fetchall()
+        users_details = []
+        for user in users:
+            cursor.execute("SELECT * FROM games WHERE userid = ?", (user[0],))
+            games = cursor.fetchall()
+            games = [game[1] for game in games]
+            cursor.execute("SELECT * FROM events WHERE userid = ?", (user[0],))
+            events = cursor.fetchall()
+            events = [event[1] for event in events]
+            users_details.append({"id":user[0],"username": user[1], "email": user[3], "is_admin": user[4], "games": games, "events": events})
+    except Exception as e:
+        print(e)
+        return apology("Error Fetching Users")
+    return render_template("manage_users.html",users=users_details)
+
+@app.route("/make_admin/<int:id>",methods=["POST"])
+@login_required
+def make_admin(id):
+    """Make a User Admin"""
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT is_admin FROM users WHERE id = ?", (session["user_id"],))
+        is_admin = cursor.fetchone()[0]
+        if not is_admin:
+            return apology("You are not authorized to manage users")
+    except Exception as e:
+        print(e)
+        return apology("Error Fetching Users")
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("UPDATE users SET is_admin = 1 WHERE id = ?", (id,))
+        db.commit()
+    except Exception as e:
+        print(e)
+        return apology("Error Making User Admin")
+    return render_template("manage_users.html",make_admin=True)
+
+@app.route("/remove_admin/<int:id>",methods=["POST"])
+@login_required
+def remove_admin(id):
+    """Remove a User Admin"""
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT is_admin FROM users WHERE id = ?", (session["user_id"],))
+        is_admin = cursor.fetchone()[0]
+        if not is_admin:
+            return apology("You are not authorized to manage users")
+    except Exception as e:
+        print(e)
+        return apology("Error Fetching Users")
+
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("UPDATE users SET is_admin = 0 WHERE id = ?", (id,))
+        db.commit()
+    except Exception as e:
+        print(e)
+        return apology("Error Removing User Admin")
+    return render_template("manage_users.html",remove_admin=True)
+
 @app.route("/approve",methods=["GET"])
 @login_required
 def approve():
     """Approve Games to be Displayed"""
-    if session["user_id"] not in admin_ids:
-        return apology("You are not authorized to approve games")
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT is_admin FROM users WHERE id = ?", (session["user_id"],))
+        is_admin = cursor.fetchone()[0]
+        if not is_admin:
+            return apology("You are not authorized to manage Games")
+    except Exception as e:
+        print(e)
+        return apology("Error Fetching Users")
     
     try:
         db = get_db()
@@ -249,8 +343,16 @@ def approve():
 @login_required
 def accept(id):
     """Accept a Game to be Displayed"""
-    if session["user_id"] not in admin_ids:
-        return apology("You are not authorized to approve games")
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT is_admin FROM users WHERE id = ?", (session["user_id"],))
+        is_admin = cursor.fetchone()[0]
+        if not is_admin:
+            return apology("You are not authorized to manage users")
+    except Exception as e:
+        print(e)
+        return apology("Error Fetching Users")
     try:
         db = get_db()
         cursor = db.cursor()
@@ -265,8 +367,16 @@ def accept(id):
 @login_required
 def reject(id):
     """Reject a Game to be Displayed"""
-    if session["user_id"] not in admin_ids:
-        return apology("You are not authorized to approve games")
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT is_admin FROM users WHERE id = ?", (session["user_id"],))
+        is_admin = cursor.fetchone()[0]
+        if not is_admin:
+            return apology("You are not authorized to manage users")
+    except Exception as e:
+        print(e)
+        return apology("Error Fetching Users")
     try:
         db = get_db()
         cursor = db.cursor()
@@ -343,13 +453,17 @@ def register():
     """Register user"""
     if request.method == "POST":
         username = request.form.get("username")
+        email = request.form.get("email")
         password = request.form.get("password")
         confirmation = request.form.get("confirmation")
+        
 
         if not username:
             return apology("Please Enter a Username")
         if not password or not confirmation or password != confirmation:
             return apology("Please correctly write both password fields")
+        if not email:
+            return apology("Please Enter an Email")
 
         db = get_db()
         cursor = db.cursor()
@@ -362,7 +476,7 @@ def register():
 
         passwordHash = generate_password_hash(password)
 
-        cursor.execute("INSERT INTO users (username,hash) VALUES (?, ?)", (username, passwordHash))
+        cursor.execute("INSERT INTO users (username,hash,email,is_admin) VALUES (?, ?,?,?)", (username, passwordHash,email,0))
         db.commit()
 
         return redirect("/login")
