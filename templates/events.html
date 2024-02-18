@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Events
+{% endblock %}
+
+{% block main %}
+<body class="min-h-screen min-w-full bg-[#0b0813]">
+<div>
+  <main class="container min-h-screen mx-auto px-4 py-12 bg-[#0b0813]">
+    <section class="mb-8">
+      <h2 class="text-2xl font-bold text-[#6b44ff] mb-4">Our Events</h2>
+      <p class="text-gray-300 mb-8">Events. Done Right. Solace Studio</p>
+      <br class="mb-8 bg-[#6b44ff] h-6 w-20 rounded-full" />
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 lg:grid-cols-4">
+        {% for event in events %}
+        <div class="bg-[#0b0813] rounded-3xl shadow p-4 hover:scale-105 delay-150 border-2 border-[#6b44ff] ">
+            <a href="#">
+              <img src="{{ event.event_images[0] }}" alt="{{ event.name }}" class="w-full rounded mb-4">
+            </a>
+            <h3 class="text-[#6b44ff] text-3xl">{{ event.heading }}</h3>
+            <p class="text-gray-300 mb-2">{{ event.subheading }}</p>
+            <button class="bg-[#6b44ff] text-white mt-4 px-4 py-2 rounded-full hover:bg-[#4a29c5] hover:scale-110" onclick="window.location.href='/event/{{ event.id }}'">Know More</button>
+          </div>
+        {% endfor %}   
+    </div>
+  </section>
+
+</main>
+</div>
+
+</body>
+</html>
+
+{% endblock %}

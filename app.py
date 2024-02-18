@@ -303,7 +303,7 @@ def approve():
         if not is_admin:
             return apology("You are not authorized to manage Games")
     except Exception as e:
-        print(e)
+        print(e)  
         return apology("Error Fetching Users")
     
     try:
@@ -408,6 +408,101 @@ def subscribe():
         return apology("Error Subscribing")
     return render_template("index.html",subscribe=True)
 
+
+@app.route("/events",methods=["GET"])
+def events():
+    """Display All Events"""
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM events")
+        events = cursor.fetchall()
+        event_details = []
+        for event in events:
+            cursor.execute("SELECT picture FROM event_images WHERE event_id = ?", (event[0],))
+            pictures = cursor.fetchall()
+            picture_address = []
+            index = 0
+            for picture in pictures: 
+                image_address = f"./static/temp/events/{event[1]}-{index}.png"
+                if not os.path.exists(image_address): 
+                    with open(image_address, "wb") as f:
+                        f.write(base64.b64decode(picture[0]))
+                    picture_address.append(image_address)
+                else:
+                    picture_address.append(image_address)
+                index += 1
+            event_details.append({"id":event[0],"heading": event[1], "subheading": event[2], "author": event[3], "description": event[4], "date": event[5], "event_images":picture_address})
+    except Exception as e:
+        print(e)
+        return apology("Error Fetching Events")
+    return render_template("events.html",events=event_details)
+
+@app.route("/manage_events",methods=["GET"])
+@login_required
+def manage_events():
+    """Manage Events"""
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT is_admin FROM users WHERE id = ?", (session["user_id"],))
+        is_admin = cursor.fetchone()[0]
+        if not is_admin:
+            return apology("You are not authorized to manage Events")
+    except Exception as e:
+        print(e)
+        return apology("Error Fetching Users")
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM events")
+        events = cursor.fetchall()
+        event_details = []
+        
+        for event in events:
+            cursor.execute("SELECT picture FROM event_images WHERE event_id = ?", (event[0],))
+            pictures = cursor.fetchall()
+            picture_address = []
+            index = 0
+            event_creator_email = cursor.execute("SELECT email FROM users WHERE id = ?", (event[6],)).fetchone()[0]
+            for picture in pictures: 
+                image_address = f"./static/temp/events/{event[1]}-{index}.png"
+                if not os.path.exists(image_address): 
+                    with open(image_address, "wb") as f:
+                        f.write(base64.b64decode(picture[0]))
+                    picture_address.append(image_address)
+                else:
+                    picture_address.append(image_address)
+                index += 1
+            event_details.append({"id":event[0],"heading": event[1], "subheading": event[2], "author": event[3], "description": event[4], "date": event[5], "event_images":picture_address, "user_name":event_creator_email})
+    except Exception as e:
+        print(e)
+        return apology("Error Fetching Events")
+    return render_template("manage_events.html",events=event_details)
+
+@app.route("/delete_event/<int:id>",methods=["POST"])
+@login_required
+def delete_event(id):
+    """Delete an Event"""
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT is_admin FROM users WHERE id = ?", (session["user_id"],))
+        is_admin = cursor.fetchone()[0]
+        if not is_admin:
+            return apology("You are not authorized to manage Events")
+    except Exception as e:
+        print(e)
+        return apology("Error Fetching Users")
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("DELETE FROM events WHERE id = ?", (id,))
+        db.commit()
+    except Exception as e:
+        print(e)
+        return apology("Error Deleting Event")
+    return render_template("manage_events.html",event_deleted=True)
 
 
 @app.route("/login", methods=["GET", "POST"])

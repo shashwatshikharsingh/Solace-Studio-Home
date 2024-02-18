@@ -23,8 +23,6 @@ module.exports = {
         black: "#0b0813"
       }
     },
-
-    
   },
   plugins: [],
 }
