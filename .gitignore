@@ -3,3 +3,4 @@
 /node_modules
 users.db
 /static/temp
+/.pytest_cache

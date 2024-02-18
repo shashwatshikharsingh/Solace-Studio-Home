@@ -32,6 +32,8 @@ def get_db():
         g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS newsletter (id INTEGER PRIMARY KEY AUTOINCREMENT,email TEXT NOT NULL)")
         g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY AUTOINCREMENT, heading TEXT NOT NULL, subheading TEXT NOT NULL, author TEXT NOT NULL, description TEXT NOT NULL, date TEXT NOT NULL, userid INTEGER NOT NULL, FOREIGN KEY (userid) REFERENCES users (id))")
         g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS event_images (id INTEGER PRIMARY KEY AUTOINCREMENT, event_id INTEGER NOT NULL, picture TEXT NOT NULL, FOREIGN KEY (event_id) REFERENCES events (id))")
+        g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS core (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, team TEXT NOT NULL, core_name TEXT NOT NULL, linkedin TEXT NOT NULL, instagram TEXT NOT NULL, role TEXT NOT NULL)")
+        g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS core_images (id INTEGER PRIMARY KEY AUTOINCREMENT, core_id INTEGER NOT NULL, picture TEXT NOT NULL, FOREIGN KEY (core_id) REFERENCES core (id))")
     return g.sqlite_db
 
 
@@ -173,9 +175,131 @@ def submit_event():
         return render_template("submit_event.html",success=True)
     else:
         return render_template("submit_event.html")
+    
+@app.route("/core",methods=["GET","POST"])
+@login_required
+def core():
+    """Add Core Members"""
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT is_admin FROM users WHERE id = ?", (session["user_id"],))
+        is_admin = cursor.fetchone()[0]
+        if not is_admin:
+            return apology("You are not authorized to manage users")
+    except Exception as e:
+        print(e)
+        return apology("Error Fetching Users")
+    if request.method == "POST":
+        name = request.form.get("name")
+        team = request.form.get("team")
+        core_name = request.form.get("core_name")
+        linkedin = request.form.get("linkedin")
+        instagram = request.form.get("instagram")
+        pictures = request.files.getlist("picture")
+        role = request.form.get("role") 
 
+        if not name:
+            return apology("Please Enter a Name")
+        if not team:
+            return apology("Please Enter a Team")
+        if not core_name and (core_name != "Junior Core" or core_name != "Senior Core"):
+            return apology("Please Enter Corrent Core Name. Junior Core / Senior Core")
+        if role and core_name == "Junior Core":
+            return apology("Junior Core Members cannot have a role")
+        if not role and core_name == "Senior Core":
+            role = "Core Member"
+        if not linkedin:
+            return apology("Please Enter a LinkedIn URL")
+        if not instagram:
+            return apology("Please Enter an Instagram URL")
+        if not request.files.getlist("picture"):
+            return apology("Please Enter a Headshot")
+        
+        try:
+            db = get_db()
+            cursor = db.cursor()
 
+            cursor.execute("INSERT INTO core (name, team, core_name, linkedin, instagram, role) VALUES (?, ?, ?, ?, ?, ?)", (name, team, core_name, linkedin, instagram, role))
 
+            core_id = cursor.lastrowid
+        
+            for picture in pictures:
+                picture_string = base64.b64encode(picture.read())
+                cursor.execute("INSERT INTO core_images (core_id, picture) VALUES (?, ?)", (core_id, picture_string))
+            db.commit()
+        except Exception as e:
+            print(e)
+            return apology("Error Submitting Core Member")
+        
+        return render_template("core.html",success=True)
+    else:
+        return render_template("core.html")
+    
+@app.route("/manage_core",methods=["GET"])
+@login_required
+def manage_core():
+    """Manage Core Members"""
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT is_admin FROM users WHERE id = ?", (session["user_id"],))
+        is_admin = cursor.fetchone()[0]
+        if not is_admin:
+            return apology("You are not authorized to manage users")
+    except Exception as e:
+        print(e)
+        return apology("Error Fetching Users")
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM core")
+        core = cursor.fetchall()
+        core_details = []
+        for member in core:
+            cursor.execute("SELECT picture FROM core_images WHERE core_id = ?", (member[0],))
+            pictures = cursor.fetchall()
+            picture_address = []
+            index = 0
+            for picture in pictures: 
+                image_address = f"./static/temp/core/{member[1]}-{index}.png"
+                if not os.path.exists(image_address): 
+                    with open(image_address, "wb") as f:
+                        f.write(base64.b64decode(picture[0]))
+                    picture_address.append(image_address)
+                else:
+                    picture_address.append(image_address)
+                index += 1
+            core_details.append({"id":member[0],"name": member[1], "team": member[2], "core_name": member[3], "linkedin": member[4], "instagram": member[5], "pictures":picture_address})
+    except Exception as e:
+        print(e)
+        return apology("Error Fetching Core Members")
+    return render_template("manage_core.html",core=core_details)
+
+@app.route("/remove_core_member/<int:id>",methods=["POST"])
+@login_required
+def remove_core_member(id):
+    """Remove a Core Member"""
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT is_admin FROM users WHERE id = ?", (session["user_id"],))
+        is_admin = cursor.fetchone()[0]
+        if not is_admin:
+            return apology("You are not authorized to manage users")
+    except Exception as e:
+        print(e)
+        return apology("Error Fetching Users")
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("DELETE FROM core WHERE id = ?", (id,))
+        db.commit()
+    except Exception as e:
+        print(e)
+        return apology("Error Removing Core Member")
+    return render_template("manage_core.html",core_deleted=True)
+    
 
 @app.route("/games",methods=["GET"])
 def games():
@@ -218,7 +342,7 @@ def manage_users():
         cursor = db.cursor()
         cursor.execute("SELECT is_admin FROM users WHERE id = ?", (session["user_id"],))
         is_admin = cursor.fetchone()[0]
-        if not is_admin:
+        if not is_admin and session["user_id"] != 1:
             return apology("You are not authorized to manage users")
     except Exception as e:
         print(e)
@@ -251,7 +375,7 @@ def make_admin(id):
         cursor = db.cursor()
         cursor.execute("SELECT is_admin FROM users WHERE id = ?", (session["user_id"],))
         is_admin = cursor.fetchone()[0]
-        if not is_admin:
+        if not is_admin and session["user_id"] != 1:
             return apology("You are not authorized to manage users")
     except Exception as e:
         print(e)
@@ -390,7 +514,34 @@ def reject(id):
 @app.route("/about",methods=["GET"])
 def about():
     """About Page"""
-    return render_template("about.html")
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM core")
+        core = cursor.fetchall()
+        core_details = []
+        if len(core) == 0:
+            return render_template("about.html")
+        for member in core:
+            cursor.execute("SELECT picture FROM core_images WHERE core_id = ?", (member[0],))
+            pictures = cursor.fetchall()
+            picture_address = []
+            index = 0
+            for picture in pictures: 
+                image_address = f"./static/temp/core/{member[1]}-{index}.png"
+                if not os.path.exists(image_address): 
+                    with open(image_address, "wb") as f:
+                        f.write(base64.b64decode(picture[0]))
+                    picture_address.append(image_address)
+                else:
+                    picture_address.append(image_address)
+                index += 1
+            core_details.append({"name": member[1], "team": member[2], "core_name": member[3], "linkedin": member[4], "instagram": member[5], "pictures":picture_address, "role":member[6]})
+    except Exception as e:
+        print(e)
+        return apology("Error Fetching Core Members")
+    
+    return render_template("about.html",core=core_details)
 
 @app.route("/subscribe",methods=["POST"])
 def subscribe():
