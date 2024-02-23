@@ -6,6 +6,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import sqlite3
 import os
 from helpers import apology, login_required
+import csv
+
 
 
 
@@ -17,8 +19,6 @@ app = Flask(__name__)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
-
-
 
 
 
@@ -42,6 +42,21 @@ def close_db(error):
     """Close the database again at the end of the request."""
     if hasattr(g, 'sqlite_db'):
         g.sqlite_db.close()
+
+def make_temp_dir():
+    """Make a temp directory to store images"""
+    if not os.path.exists("static/temp"):
+        os.makedirs("static/temp")
+    if not os.path.exists("static/temp/admin"):
+        os.makedirs("static/temp/admin")
+    if not os.path.exists("static/temp/core"):
+        os.makedirs("static/temp/core")
+    if not os.path.exists("static/temp/events"):
+        os.makedirs("static/temp/events")
+    if not os.path.exists("static/temp/newsletter"):
+        os.makedirs("static/temp/newsletter")
+
+make_temp_dir()
 
 
 @app.route("/",methods=["GET"])
@@ -655,6 +670,130 @@ def delete_event(id):
         return apology("Error Deleting Event")
     return render_template("manage_events.html",event_deleted=True)
 
+
+@app.route("/manage_newsletter",methods=["GET"])
+@login_required
+def manage_newsletter():
+    """Manage Newsletter"""
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT is_admin FROM users WHERE id = ?", (session["user_id"],))
+        is_admin = cursor.fetchone()[0]
+        if not is_admin:
+            return apology("You are not authorized to manage Newsletter")
+    except Exception as e:
+        print(e)
+        return apology("Error Fetching Users")
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM newsletter")
+        emails = cursor.fetchall()
+        email_details = []
+        for email in emails:
+            email_details.append({"id":email[0],"email": email[1]})
+    except Exception as e:
+        print(e)
+        return apology("Error Fetching Emails")
+    return render_template("manage_newsletter.html",newsletter=email_details)
+
+@app.route("/export_newsletter",methods=["POST"])
+@login_required
+def export_newsletter():
+    """Export Newsletter"""
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT is_admin FROM users WHERE id = ?", (session["user_id"],))
+        is_admin = cursor.fetchone()[0]
+        if not is_admin:
+            return apology("You are not authorized to manage Newsletter")
+    except Exception as e:
+        print(e)
+        return apology("Error Fetching Users")
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM newsletter")
+        emails = cursor.fetchall()
+        csv_path = f"./static/temp/newsletter/emails.csv"
+        if os.path.exists(csv_path):
+            os.remove(csv_path)
+        with open(csv_path, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(['id', 'email'])
+            for email in emails:
+                writer.writerow([email[0], email[1]])
+    except Exception as e:
+        print(e)
+        return apology("Error Exporting Emails")
+    return render_template("manage_newsletter.html",newsletter_exported=True, csv_path=csv_path)
+
+
+@app.route("/manage_games",methods=["GET"])
+@login_required
+def manage_games():
+    """Manage Games"""
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT is_admin FROM users WHERE id = ?", (session["user_id"],))
+        is_admin = cursor.fetchone()[0]
+        if not is_admin:
+            return apology("You are not authorized to manage Games")
+    except Exception as e:
+        print(e)
+        return apology("Error Fetching Users")
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM games")
+        games = cursor.fetchall()
+        game_details = []
+        for game in games:
+            cursor.execute("SELECT picture FROM game_images WHERE game_id = ?", (game[0],))
+            pictures = cursor.fetchall()
+            picture_address = []
+            index = 0
+            for picture in pictures: 
+                image_address = f"./static/temp/{game[1]}-{index}.png"
+                if not os.path.exists(image_address): 
+                    with open(image_address, "wb") as f:
+                        f.write(base64.b64decode(picture[0]))
+                    picture_address.append(image_address)
+                else:
+                    picture_address.append(image_address)
+                index += 1
+            game_details.append({"id":game[0],"name": game[1], "description": game[2], "game_link": game[3], "pictures": picture_address})
+    except Exception as e:
+        print(e)
+        return apology("Error Fetching Games")
+    return render_template("manage_games.html",games=game_details)
+
+@app.route("/delete_game/<int:id>",methods=["POST"])
+@login_required
+def delete_game(id):
+    """Delete a Game"""
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT is_admin FROM users WHERE id = ?", (session["user_id"],))
+        is_admin = cursor.fetchone()[0]
+        if not is_admin:
+            return apology("You are not authorized to manage Games")
+    except Exception as e:
+        print(e)
+        return apology("Error Fetching Users")
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("DELETE FROM games WHERE id = ?", (id,))
+        db.commit()
+    except Exception as e:
+        print(e)
+        return apology("Error Deleting Game")
+    return render_template("manage_games.html",game_deleted=True)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
