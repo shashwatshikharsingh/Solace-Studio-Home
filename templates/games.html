@@ -16,7 +16,7 @@
         {% for game in games %}
         <div class="bg-[#0b0813] rounded-3xl shadow p-4 hover:scale-105 delay-150 border-2 border-[#6b44ff] ">
           <a href="#">
-            <img src="{{ game.pictures[0] }}" alt="{{ game.name }}" class="w-full rounded mb-4">
+            <img src="{{ game.pictures[0] }}" alt="{{ game.name }}" class="w-full max-h-64 rounded mb-4">
           </a>
           <h3 class="text-[#6b44ff] text-3xl">{{ game.name }}</h3>
           <p class="text-gray-300 mb-2">{{ game.description }}</p>

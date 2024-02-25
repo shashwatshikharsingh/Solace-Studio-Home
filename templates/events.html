@@ -16,7 +16,7 @@
         {% for event in events %}
         <div class="bg-[#0b0813] rounded-3xl shadow p-4 hover:scale-105 delay-150 border-2 border-[#6b44ff] ">
             <a href="#">
-              <img src="{{ event.event_images[0] }}" alt="{{ event.name }}" class="w-full rounded mb-4">
+              <img src="{{ event.event_images[0] }}" alt="{{ event.name }}" class="w-full max-h-48 rounded mb-4">
             </a>
             <h3 class="text-[#6b44ff] text-3xl">{{ event.heading }}</h3>
             <p class="text-gray-300 mb-2">{{ event.subheading }}</p>

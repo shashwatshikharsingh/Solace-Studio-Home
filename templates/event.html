@@ -27,7 +27,7 @@
         </div>
         <div class="mt-12">
           {% for image in event.event_images %}
-            <img src="{{url_for('static',filename=image[9:])}}" alt="Event image" class="w-full max-w-7xl h-full object-cover rounded-lg">
+            <img src="{{url_for('static',filename=image[9:])}}" alt="Event image" class="w-full max-w-7xl h-full pt-8 object-cover rounded-lg">
           {% endfor %}
         </div>
         <div class="mt-12 text-center text-gray-600">
