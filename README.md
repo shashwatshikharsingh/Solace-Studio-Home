@@ -2,6 +2,11 @@
 
 **This project is a Flask web application with Tailwind CSS for styling.**
 
+# Contributors Graph
+<a href="https://github.com/Solace-Studio/home/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Solace-Studio/home" />
+</a>
+
 # Authors
 
 - [Shashwat Shikhar Singh](https://github.com/shashwatshikharsingh)
