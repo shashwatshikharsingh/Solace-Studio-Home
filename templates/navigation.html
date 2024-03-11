@@ -1,0 +1,209 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Navigation
+{% endblock %}
+
+{% block main %}
+
+<div class="bg-[#0b0813]">
+    <ul class="flex flex-col space-y-2 bg-[#0b0813] pt-8">
+      <li>
+        <strong class="block text-xs font-medium uppercase text-gray-300"> General </strong>
+  
+        <ul class="mt-2 space-y-1">
+          <li>
+            <a
+              href="/"
+              class="block rounded-lg px-4 py-2 text-sm font-medium text-gray-300 hover:bg-[#6b44ff] hover:text-gray-200"
+            >
+              Home
+            </a>
+          </li>
+  
+          <li>
+            <a
+              href="/about"
+              class="block rounded-lg px-4 py-2 text-sm font-medium text-gray-300 hover:bg-[#6b44ff] hover:text-gray-200"
+            >
+              About
+            </a>
+          </li>
+
+          <li>
+            <a
+              href="/events"
+              class="block rounded-lg px-4 py-2 text-sm font-medium text-gray-300 hover:bg-[#6b44ff] hover:text-gray-200"
+            >
+              Events
+            </a>
+          </li>
+  
+          <li>
+            <a
+              href="/games"
+              class="block rounded-lg px-4 py-2 text-sm font-medium text-gray-300 hover:bg-[#6b44ff] hover:text-gray-200 "
+            >
+              Games
+            </a>
+          </li>
+  
+          <li>
+            <a
+              href="/blogs"
+              class="block rounded-lg px-4 py-2 text-sm font-medium text-gray-300 hover:bg-[#6b44ff] hover:text-gray-200 "
+            >
+              Blogs
+            </a>
+          </li>
+
+          <li>
+            <a
+              href="/submit"
+              class="block rounded-lg px-4 py-2 text-sm font-medium text-gray-300 hover:bg-[#6b44ff] hover:text-gray-200 "
+            >
+              Submit Games
+            </a>
+          </li>
+
+          <li>
+            <a
+              href="/submit_event"
+              class="block rounded-lg px-4 py-2 text-sm font-medium text-gray-300 hover:bg-[#6b44ff] hover:text-gray-200 "
+            >
+              Submit Events
+            </a>
+          </li>
+
+          <li>
+            <a
+              href="/submit_blog"
+              class="block rounded-lg px-4 py-2 text-sm font-medium text-gray-300 hover:bg-[#6b44ff] hover:text-gray-200 "
+            >
+              Submit Blog
+            </a>
+          </li>
+
+        </ul>
+      </li>
+  
+      <li>
+        <strong class="block text-xs font-medium uppercase text-gray-400"> Admin </strong>
+  
+        <ul class="mt-2 space-y-1">
+          <li>
+            <a
+              href="/approve"
+              class="block rounded-lg px-4 py-2 text-sm font-medium text-gray-300 hover:bg-[#6b44ff] hover:text-gray-200 "
+            >
+            Approve Games
+            </a>
+          </li>
+  
+          <li>
+            <a
+              href="/manage_games"
+              class="block rounded-lg px-4 py-2 text-sm font-medium text-gray-300 hover:bg-[#6b44ff] hover:text-gray-200 "
+            >
+              Manage Games
+            </a>
+          </li>
+  
+          <li>
+            <a
+              href="/manage_events"
+              class="block rounded-lg px-4 py-2 text-sm font-medium text-gray-300 hover:bg-[#6b44ff] hover:text-gray-200 "
+            >
+              Manage Events
+            </a>
+          </li>
+
+          <li>
+            <a
+              href="/manage_core"
+              class="block rounded-lg px-4 py-2 text-sm font-medium text-gray-300 hover:bg-[#6b44ff] hover:text-gray-200 "
+            >
+              Manage Core
+            </a>
+          </li>
+
+          <li>
+            <a
+              href="/core"
+              class="block rounded-lg px-4 py-2 text-sm font-medium text-gray-300 hover:bg-[#6b44ff] hover:text-gray-200 "
+            >
+            Add Core Member
+            </a>
+          </li>
+
+          <li>
+            <a
+              href="/manage_blogs"
+              class="block rounded-lg px-4 py-2 text-sm font-medium text-gray-300 hover:bg-[#6b44ff] hover:text-gray-200 "
+            >
+              Manage Blogs
+            </a>
+          </li>
+
+          <li>
+            <a
+              href="/manage_users"
+              class="block rounded-lg px-4 py-2 text-sm font-medium text-gray-300 hover:bg-[#6b44ff] hover:text-gray-200 "
+            >
+                Manage Users
+        
+        </a>
+          </li>
+
+          <li>
+            <a
+              href="/manage_newsletter"
+              class="block rounded-lg px-4 py-2 text-sm font-medium text-gray-300 hover:bg-[#6b44ff] hover:text-gray-200 "
+            >
+              Manage Newsletters
+            </a>
+          </li>
+
+        </ul>
+      </li>
+  
+      <li>
+        <strong class="block text-xs font-medium uppercase text-gray-400"> Profile </strong>
+  
+        <ul class="mt-2 space-y-1">
+          <li>
+            <a
+              href="/login"
+              class="block rounded-lg px-4 py-2 text-sm font-medium text-gray-300 hover:bg-[#6b44ff] hover:text-gray-200 "
+            >
+              Login
+            </a>
+          </li>
+  
+          <li>
+            <a
+              href="/register"
+              class="block rounded-lg px-4 py-2 text-sm font-medium text-gray-300 hover:bg-[#6b44ff] hover:text-gray-200 "
+            >
+              Register
+            </a>
+          </li>
+  
+          <li>
+            <form action="/logout">
+              <button
+                type="submit"
+                class="block w-full rounded-lg px-4 py-2 text-sm font-medium text-gray-300 [text-align:_inherit] hover:bg-[#6b44ff] hover:text-gray-200 "
+              >
+                Logout
+              </button>
+            </form>
+          </li>
+
+          
+        </ul>
+      </li>
+    </ul>
+  </div>
+
+{% endblock %}

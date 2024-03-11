@@ -7,8 +7,7 @@ import sqlite3
 import os
 from helpers import apology, login_required
 import csv
-
-
+from datetime import datetime
 
 
 
@@ -34,6 +33,8 @@ def get_db():
         g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS event_images (id INTEGER PRIMARY KEY AUTOINCREMENT, event_id INTEGER NOT NULL, picture TEXT NOT NULL, FOREIGN KEY (event_id) REFERENCES events (id))")
         g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS core (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, team TEXT NOT NULL, core_name TEXT NOT NULL, linkedin TEXT NOT NULL, instagram TEXT NOT NULL, role TEXT NOT NULL)")
         g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS core_images (id INTEGER PRIMARY KEY AUTOINCREMENT, core_id INTEGER NOT NULL, picture TEXT NOT NULL, FOREIGN KEY (core_id) REFERENCES core (id))")
+        g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS blogs (id INTEGER PRIMARY KEY AUTOINCREMENT, heading TEXT NOT NULL, subheading TEXT NOT NULL, author TEXT NOT NULL, description TEXT NOT NULL, date TEXT NOT NULL, userid INTEGER NOT NULL, FOREIGN KEY (userid) REFERENCES users (id))")
+        g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS blog_images (id INTEGER PRIMARY KEY AUTOINCREMENT, blog_id INTEGER NOT NULL, picture TEXT NOT NULL, FOREIGN KEY (blog_id) REFERENCES blogs (id))")
     return g.sqlite_db
 
 
@@ -55,6 +56,8 @@ def make_temp_dir():
         os.makedirs("static/temp/events")
     if not os.path.exists("static/temp/newsletter"):
         os.makedirs("static/temp/newsletter")
+    if not os.path.exists("static/temp/blogs"):
+        os.makedirs("static/temp/blogs")
 
 make_temp_dir()
 
@@ -62,7 +65,7 @@ make_temp_dir()
 @app.route("/",methods=["GET"])
 def index():
     """Main Page"""
-    return render_template("index.html")
+    return render_template("index.html",current_date=datetime.now().strftime("%Y-%m-%d"))
 
 @app.route("/submit",methods=["GET","POST"])
 @login_required
@@ -222,7 +225,7 @@ def core():
             return apology("Please Enter Corrent Core Name. Junior Core / Senior Core")
         if role and core_name == "Junior Core":
             return apology("Junior Core Members cannot have a role")
-        if not role and core_name == "Senior Core":
+        if not role and core_name == "Junior Core":
             role = "Core Member"
         if not linkedin:
             return apology("Please Enter a LinkedIn URL")
@@ -285,7 +288,7 @@ def manage_core():
                 else:
                     picture_address.append(image_address)
                 index += 1
-            core_details.append({"id":member[0],"name": member[1], "team": member[2], "core_name": member[3], "linkedin": member[4], "instagram": member[5], "pictures":picture_address})
+            core_details.append({"id":member[0],"name": member[1], "team": member[2], "core_name": member[3], "linkedin": member[4], "instagram": member[5], "pictures":picture_address,"role":member[6]})
     except Exception as e:
         print(e)
         return apology("Error Fetching Core Members")
@@ -794,6 +797,191 @@ def delete_game(id):
         print(e)
         return apology("Error Deleting Game")
     return render_template("manage_games.html",game_deleted=True)
+
+
+@app.route("/submit_blog",methods=["GET","POST"])
+@login_required
+def submit_blog():
+    """Submit a New Blog"""
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT is_admin FROM users WHERE id = ?", (session["user_id"],))
+        is_admin = cursor.fetchone()[0]
+        if not is_admin:
+            return apology("You are not authorized to manage Blogs")
+    except Exception as e:
+        print(e)
+        return apology("Error Fetching Users")
+    if request.method == "POST":
+        if not request.form.get("heading"):
+            return apology("Please Enter a Heading")
+        if not request.form.get("subheading"):
+            return apology("Please Enter a Sub Heading")
+        if not request.form.get("author"):
+            return apology("Please Enter a Author")
+        if not request.files.getlist("picture"):
+            return apology("Please Enter a Picture")
+        if not request.form.get("description"):
+            return apology("Please Enter a Description")
+        if not request.form.get("date"):
+            return apology("Please Enter a Date")
+        
+        heading = request.form.get("heading")
+        subheading = request.form.get("subheading")
+        author = request.form.get("author")
+        description = request.form.get("description")
+        date = request.form.get("date")
+        pictures = request.files.getlist("picture")
+
+        try:
+            db = get_db()
+            cursor = db.cursor()
+
+            cursor.execute("INSERT INTO blogs (heading, subheading, author, description, date, userid) VALUES (?, ?, ?, ?, ?, ?)", (heading, subheading, author, description, date, session["user_id"]))
+        
+            blog_id = cursor.lastrowid
+        
+            for picture in pictures:
+                picture_string = base64.b64encode(picture.read())
+                cursor.execute("INSERT INTO blog_images (blog_id, picture) VALUES (?, ?)", (blog_id, picture_string))
+        
+            db.commit()
+        except Exception as e:
+            print(e)
+            return apology("Error Submitting Blog")
+        
+        return render_template("submit_blog.html",success=True)
+    else:
+        return render_template("submit_blog.html")
+    
+@app.route("/manage_blogs",methods=["GET"])
+@login_required
+def manage_blogs():
+    """Manage Blogs"""
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT is_admin FROM users WHERE id = ?", (session["user_id"],))
+        is_admin = cursor.fetchone()[0]
+        if not is_admin:
+            return apology("You are not authorized to manage Blogs")
+    except Exception as e:
+        print(e)
+        return apology("Error Fetching Users")
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM blogs")
+        blogs = cursor.fetchall()
+        blog_details = []
+        for blog in blogs:
+            cursor.execute("SELECT picture FROM blog_images WHERE blog_id = ?", (blog[0],))
+            pictures = cursor.fetchall()
+            picture_address = []
+            index = 0
+            blog_creator_email = cursor.execute("SELECT email FROM users WHERE id = ?", (blog[6],)).fetchone()[0]
+            for picture in pictures: 
+                image_address = f"./static/temp/blogs/{blog[1]}-{index}.png"
+                if not os.path.exists(image_address): 
+                    with open(image_address, "wb") as f:
+                        f.write(base64.b64decode(picture[0]))
+                    picture_address.append(image_address)
+                else:
+                    picture_address.append(image_address)
+                index += 1
+            blog_details.append({"id":blog[0],"heading": blog[1], "subheading": blog[2], "author": blog[3], "description": blog[4], "date": blog[5], "blog_images":picture_address, "user_name":blog_creator_email})
+    except Exception as e:
+        print(e)
+        return apology("Error Fetching Blogs")
+    return render_template("manage_blogs.html",blogs=blog_details)
+
+@app.route("/delete_blog/<int:id>",methods=["POST"])
+@login_required
+def delete_blog(id):
+    """Delete a Blog"""
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT is_admin FROM users WHERE id = ?", (session["user_id"],))
+        is_admin = cursor.fetchone()[0]
+        if not is_admin:
+            return apology("You are not authorized to manage Blogs")
+    except Exception as e:
+        print(e)
+        return apology("Error Fetching Users")
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("DELETE FROM blogs WHERE id = ?", (id,))
+        db.commit()
+    except Exception as e:
+        print(e)
+        return apology("Error Deleting Blog")
+    return render_template("manage_blogs.html",blog_deleted=True)
+
+@app.route("/blog/<int:id>",methods=["GET"])
+def blog(id):
+    """Blog Page for Each Blog"""
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM blogs WHERE id = ?", (id,))
+        blog = cursor.fetchone()
+        cursor.execute("SELECT picture FROM blog_images WHERE blog_id = ?", (id,))
+        pictures = cursor.fetchall()
+        picture_address = []
+        index = 0
+        for picture in pictures: 
+                image_address = f"./static/temp/blogs/{blog[1]}-{index}.png"
+                if not os.path.exists(image_address): 
+                    with open(image_address, "wb") as f:
+                        f.write(base64.b64decode(picture[0]))
+                    picture_address.append(image_address)
+                else:
+                    picture_address.append(image_address)
+        blog_details = {"heading": blog[1], "subheading": blog[2], "author": blog[3], "description": blog[4], "date": blog[5], "blog_images":picture_address}
+
+    except Exception as e:
+        print(e)
+        return apology("Error Fetching Blog")
+    return render_template("blog.html",blog=blog_details)
+
+@app.route("/blogs",methods=["GET"])
+def blogs():
+    """Display All Blogs"""
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM blogs")
+        blogs = cursor.fetchall()
+        blog_details = []
+        for blog in blogs:
+            cursor.execute("SELECT picture FROM blog_images WHERE blog_id = ?", (blog[0],))
+            pictures = cursor.fetchall()
+            picture_address = []
+            index = 0
+            for picture in pictures: 
+                image_address = f"./static/temp/blogs/{blog[1]}-{index}.png"
+                if not os.path.exists(image_address): 
+                    with open(image_address, "wb") as f:
+                        f.write(base64.b64decode(picture[0]))
+                    picture_address.append(image_address)
+                else:
+                    picture_address.append(image_address)
+                index += 1
+            blog_details.append({"id": blog[0], "heading": blog[1], "subheading": blog[2], "author": blog[3], "description": blog[4], "date": blog[5], "blog_images":picture_address})
+    except Exception as e:
+        print(e)
+        return apology("Error Fetching Blogs")
+    return render_template("blogs.html",blogs=blog_details)
+
+
+@app.route("/navigation",methods=["GET"])
+def navigation():
+    """Navigation Page"""
+    return render_template("navigation.html")
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():

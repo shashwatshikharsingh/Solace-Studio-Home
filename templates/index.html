@@ -25,6 +25,16 @@
   </div>
   </span>
   {% endif %}
+
+  {% set target_date = "2024-04-18" %}
+  {% if current_date < target_date %}
+  <div class="bg-[#6b44ff] px-4 py-3 h-12 text-gray-300">
+    <p class="text-center text-sm font-medium">
+      Solace Odyssey. 3 Days of Pure Gaming Bliss.
+      <a href="https://dub.sh/solace-odyssey" class="inline-block text-gray-300 underline hover:text-white">Register Now!</a>
+    </p>
+  </div>
+  {% endif %}
   <section class="bg-[#0b0813] m-0 p-0">
 
     <div class="relative min-h-screen flex flex-col justify-center items-center m-0">
@@ -53,6 +63,11 @@
               <a href="/games"
                 class="text-gray-300 no-underline text-sm font-mullish font-bold py-3 hover:text-[#6b44ff] cursor-pointer transition-all duration-200 group">Games</a>
             </li>
+            <li
+            class="text-gray-300 font-mullish font-bold py-3 hover:text-purple cursor-pointer transition-all duration-200 relative group">
+            <a href="/blogs"
+              class="text-gray-300 no-underline text-sm font-mullish font-bold py-3 hover:text-[#6b44ff] cursor-pointer transition-all duration-200 group">Blogs</a>
+          </li>
           </ul>
         </div>
 
