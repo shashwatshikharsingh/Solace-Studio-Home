@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: 
+Disallow: /manage_users
+Disallow: /manage_events
+Disallow: /manage_newsletter
+Disallow: /manage_blogs
+Disallow: /core
+Sitemap: https://solace-kox7.onrender.com/sitemap.xml

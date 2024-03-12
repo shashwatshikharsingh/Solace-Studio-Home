@@ -1,5 +1,5 @@
 import base64
-from flask import Flask, flash, redirect, render_template, request, session,g,jsonify
+from flask import Flask, flash, redirect, render_template, request, session,g,jsonify,send_from_directory
 from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -66,6 +66,11 @@ make_temp_dir()
 def index():
     """Main Page"""
     return render_template("index.html",current_date=datetime.now().strftime("%Y-%m-%d"))
+
+@app.route('/robots.txt')
+@app.route('/sitemap.xml')
+def static_from_root():
+    return send_from_directory(app.static_folder, request.path[1:])
 
 @app.route("/submit",methods=["GET","POST"])
 @login_required
