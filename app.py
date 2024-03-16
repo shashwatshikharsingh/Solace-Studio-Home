@@ -603,7 +603,7 @@ def subscribe():
     except Exception as e: 
         print(e)
         return apology("Error Subscribing")
-    return render_template("index.html",subscribe=True)
+    return render_template("index.html",subscribe=True,current_date=datetime.now().strftime("%Y-%m-%d"))
 
 
 @app.route("/events",methods=["GET"])
