@@ -61,6 +61,29 @@ def make_temp_dir():
 
 make_temp_dir()
 
+@app.before_first_request
+def seed_data():
+    """Seed the Database with some Data"""
+    
+    db = get_db()
+    cursor = db.cursor()
+
+    cursor.execute("INSERT INTO games (name, description, game_link, userid,is_Verified) VALUES (?, ?, ?, ?,?)", ("Poly Drift", "Racing Game with Multiple Maps and Cars!", "https://priyanshu-gahlot.itch.io/polly-drift", 1,1))
+    cursor.execute("INSERT INTO game_images (game_id, picture) VALUES (?, ?)", (1, base64.b64encode(open("./static/assets/poly_drift.png", "rb").read())))
+    
+    cursor.execute("INSERT INTO events (heading, subheading, author, description, date, userid) VALUES (?, ?, ?, ?, ?, ?)", ("Gaming Bus", "Solace x Trinity Gaming Bus. Entertainment on Wheels", "Solace Studio", "Solace Studios was extremely fortunate to be a part of organising this amazing gaming event which was made possible by Trinity Gaming ( @trinitygaming.in ) and Facebook Gaming (@facebookgaming ). The students at Bennett University experienced how streaming works, FIFA tournaments were organised and people just had loads of fun clicking pictures in the booths created, and making reels in the content house", "2024-03-01", 1))
+    cursor.execute("INSERT INTO event_images (event_id, picture) VALUES (?, ?)", (1, base64.b64encode(open("./static/assets/build-blitz.png", "rb").read())))
+
+    cursor.execute("INSERT INTO core (name, team, core_name, linkedin, instagram, role) VALUES (?, ?, ?, ?, ?, ?)", ("Rakesh Sharma", "Development", "Senior Core", "https://www.linkedin.com/in/", "https://www.instagram.com/", "Dev Head"))
+    cursor.execute("INSERT INTO core_images (core_id, picture) VALUES (?, ?)", (1, base64.b64encode(open("./static/assets/test.png", "rb").read())))
+
+    cursor.execute("INSERT INTO blogs (heading, subheading, author, description, date, userid) VALUES (?, ?, ?, ?, ?, ?)", ("How to make 3d assets for a game", "A guide to making games", "Solace Studios", "This is a guide to making games", "2024-03-01", 1))
+    cursor.execute("INSERT INTO blog_images (blog_id, picture) VALUES (?, ?)", (1, base64.b64encode(open("./static/assets/test.png", "rb").read())))
+
+    db.commit()
+
+
+
 
 @app.route("/",methods=["GET"])
 def index():
