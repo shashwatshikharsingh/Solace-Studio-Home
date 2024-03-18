@@ -29,7 +29,7 @@ def get_db():
         g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS games (id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT NOT NULL,description TEXT NOT NULL,game_link TEXT NOT NULL,userid INTEGER NOT NULL,is_Verified INTEGER NOT NULL,FOREIGN KEY (userid) REFERENCES users (id))")
         g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS game_images (id INTEGER PRIMARY KEY AUTOINCREMENT,game_id INTEGER NOT NULL,picture TEXT NOT NULL,FOREIGN KEY (game_id) REFERENCES games (id))")
         g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS newsletter (id INTEGER PRIMARY KEY AUTOINCREMENT,email TEXT NOT NULL)")
-        g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY AUTOINCREMENT, heading TEXT NOT NULL, subheading TEXT NOT NULL, author TEXT NOT NULL, description TEXT NOT NULL, date TEXT NOT NULL, userid INTEGER NOT NULL, FOREIGN KEY (userid) REFERENCES users (id))")
+        g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY AUTOINCREMENT, heading TEXT NOT NULL, subheading TEXT NOT NULL, author TEXT NOT NULL, description TEXT NOT NULL, date TEXT NOT NULL, userid INTEGER NOT NULL, external_link TEXT, FOREIGN KEY (userid) REFERENCES users (id))")
         g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS event_images (id INTEGER PRIMARY KEY AUTOINCREMENT, event_id INTEGER NOT NULL, picture TEXT NOT NULL, FOREIGN KEY (event_id) REFERENCES events (id))")
         g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS core (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, team TEXT NOT NULL, core_name TEXT NOT NULL, linkedin TEXT NOT NULL, instagram TEXT NOT NULL, role TEXT NOT NULL)")
         g.sqlite_db.execute("CREATE TABLE IF NOT EXISTS core_images (id INTEGER PRIMARY KEY AUTOINCREMENT, core_id INTEGER NOT NULL, picture TEXT NOT NULL, FOREIGN KEY (core_id) REFERENCES core (id))")
@@ -68,19 +68,21 @@ def seed_data():
     db = get_db()
     cursor = db.cursor()
 
-    cursor.execute("INSERT INTO games (name, description, game_link, userid,is_Verified) VALUES (?, ?, ?, ?,?)", ("Poly Drift", "Racing Game with Multiple Maps and Cars!", "https://priyanshu-gahlot.itch.io/polly-drift", 1,1))
-    cursor.execute("INSERT INTO game_images (game_id, picture) VALUES (?, ?)", (1, base64.b64encode(open("./static/assets/poly_drift.png", "rb").read())))
-    
-    cursor.execute("INSERT INTO events (heading, subheading, author, description, date, userid) VALUES (?, ?, ?, ?, ?, ?)", ("Gaming Bus", "Solace x Trinity Gaming Bus. Entertainment on Wheels", "Solace Studio", "Solace Studios was extremely fortunate to be a part of organising this amazing gaming event which was made possible by Trinity Gaming ( @trinitygaming.in ) and Facebook Gaming (@facebookgaming ). The students at Bennett University experienced how streaming works, FIFA tournaments were organised and people just had loads of fun clicking pictures in the booths created, and making reels in the content house", "2024-03-01", 1))
-    cursor.execute("INSERT INTO event_images (event_id, picture) VALUES (?, ?)", (1, base64.b64encode(open("./static/assets/build-blitz.png", "rb").read())))
+    if len(cursor.execute("SELECT * FROM games").fetchall()) == 0:
 
-    cursor.execute("INSERT INTO core (name, team, core_name, linkedin, instagram, role) VALUES (?, ?, ?, ?, ?, ?)", ("Rakesh Sharma", "Development", "Senior Core", "https://www.linkedin.com/in/", "https://www.instagram.com/", "Dev Head"))
-    cursor.execute("INSERT INTO core_images (core_id, picture) VALUES (?, ?)", (1, base64.b64encode(open("./static/assets/test.png", "rb").read())))
+        cursor.execute("INSERT INTO games (name, description, game_link, userid,is_Verified) VALUES (?, ?, ?, ?,?)", ("Poly Drift", "Racing Game with Multiple Maps and Cars!", "https://priyanshu-gahlot.itch.io/polly-drift", 1,1))
+        cursor.execute("INSERT INTO game_images (game_id, picture) VALUES (?, ?)", (1, base64.b64encode(open("./static/assets/poly_drift.png", "rb").read())))
+        
+        cursor.execute("INSERT INTO events (heading, subheading, author, description, date, userid, external_link) VALUES (?, ?, ?, ?, ?, ?, ?)", ("Gaming Bus", "Solace x Trinity Gaming Bus. Entertainment on Wheels", "Solace Studio", "Solace Studios was extremely fortunate to be a part of organising this amazing gaming event which was made possible by Trinity Gaming ( @trinitygaming.in ) and Facebook Gaming (@facebookgaming ). The students at Bennett University experienced how streaming works, FIFA tournaments were organised and people just had loads of fun clicking pictures in the booths created, and making reels in the content house", "2024-03-01", 1,"https://www.unstop.com/"))
+        cursor.execute("INSERT INTO event_images (event_id, picture) VALUES (?, ?)", (1, base64.b64encode(open("./static/assets/build-blitz.png", "rb").read())))
 
-    cursor.execute("INSERT INTO blogs (heading, subheading, author, description, date, userid) VALUES (?, ?, ?, ?, ?, ?)", ("How to make 3d assets for a game", "A guide to making games", "Solace Studios", "This is a guide to making games", "2024-03-01", 1))
-    cursor.execute("INSERT INTO blog_images (blog_id, picture) VALUES (?, ?)", (1, base64.b64encode(open("./static/assets/test.png", "rb").read())))
+        cursor.execute("INSERT INTO core (name, team, core_name, linkedin, instagram, role) VALUES (?, ?, ?, ?, ?, ?)", ("Rakesh Sharma", "Development", "Senior Core", "https://www.linkedin.com/in/", "https://www.instagram.com/", "Dev Head"))
+        cursor.execute("INSERT INTO core_images (core_id, picture) VALUES (?, ?)", (1, base64.b64encode(open("./static/assets/test.png", "rb").read())))
 
-    db.commit()
+        cursor.execute("INSERT INTO blogs (heading, subheading, author, description, date, userid) VALUES (?, ?, ?, ?, ?, ?)", ("How to make 3d assets for a game", "A guide to making games", "Solace Studios", "This is a guide to making games", "2024-03-01", 1))
+        cursor.execute("INSERT INTO blog_images (blog_id, picture) VALUES (?, ?)", (1, base64.b64encode(open("./static/assets/test.png", "rb").read())))
+
+        db.commit()
 
 
 
@@ -156,7 +158,10 @@ def event(id):
                 else:
                     picture_address.append(image_address)
                 index += 1
-        event_details = {"heading": event[1], "subheading": event[2], "author": event[3], "description": event[4], "date": event[5], "event_images":picture_address}
+        if event[7] is not None:
+            event_details = {"heading": event[1], "subheading": event[2], "author": event[3], "description": event[4], "date": event[5], "event_images":picture_address, "external_link":event[7]}
+        else:
+            event_details = {"heading": event[1], "subheading": event[2], "author": event[3], "description": event[4], "date": event[5], "event_images":picture_address}
 
     except Exception as e:
         print(e)
@@ -199,6 +204,10 @@ def submit_event():
         description = request.form.get("description")
         date = request.form.get("date")
         pictures = request.files.getlist("picture")
+        if request.form.get("external_link"):
+            external_link = request.form.get("external_link")
+        else:
+            external_link = None
 
 
         try:
@@ -206,8 +215,11 @@ def submit_event():
             cursor = db.cursor()
 
             cursor.execute("INSERT INTO events (heading, subheading, author, description, date, userid) VALUES (?, ?, ?, ?, ?, ?)", (heading, subheading, author, description, date, session["user_id"]))
-        
+
             event_id = cursor.lastrowid
+
+            if external_link is not None:
+                cursor.execute("UPDATE events SET external_link = ? WHERE id = ?", (external_link, event_id))
         
             for picture in pictures:
                 picture_string = base64.b64encode(picture.read())
@@ -671,7 +683,10 @@ def manage_events():
                 else:
                     picture_address.append(image_address)
                 index += 1
-            event_details.append({"id":event[0],"heading": event[1], "subheading": event[2], "author": event[3], "description": event[4], "date": event[5], "event_images":picture_address, "user_name":event_creator_email})
+            if event[7] is not None:
+                event_details.append({"id":event[0],"heading": event[1], "subheading": event[2], "author": event[3], "description": event[4], "date": event[5], "event_images":picture_address, "user_name":event_creator_email, "external_link":event[7]})
+            else:
+                event_details.append({"id":event[0],"heading": event[1], "subheading": event[2], "author": event[3], "description": event[4], "date": event[5], "event_images":picture_address, "user_name":event_creator_email})
     except Exception as e:
         print(e)
         return apology("Error Fetching Events")

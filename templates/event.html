@@ -24,6 +24,9 @@
               <div class="text-sm text-gray-500">{{event.date}}</div>
             </div>
           </div>
+          <div class="mt-4 text-xl text-[#6b44ff] no-underline">
+            <a href="{{event.external_link}}" target="_blank" rel="noopener noreferrer" class="text-[#6b44ff] no-underline text-sm">{{event.external_link}}</a>
+          </div>
         </div>
         <div class="mt-12">
           {% for image in event.event_images %}

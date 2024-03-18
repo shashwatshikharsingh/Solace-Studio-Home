@@ -29,6 +29,7 @@ Manage Eventss
             <th class="px-4 py-2 text-gray-300 text-left">Event Name</th>
             <th class="px-4 py-2 text-gray-300 text-left">Event Created By User</th>
             <th class="px-4 py-2 text-gray-300 text-left">Event description</th>
+            <th class="px-4 py-2 text-gray-300 text-left">Event Link</th>
             <th class="px-4 py-2 text-gray-300 text-left">Event Images</th>
             <th class="px-4 py-2 text-gray-300 text-left">Event Author</th>
             <th class="px-4 py-2 text-gray-300 text-left">Actions</th>
@@ -40,6 +41,7 @@ Manage Eventss
               <td class="text-gray-300 px-4 py-2">{{ event.heading }}</td>
               <td class="text-gray-300 px-4 py-2">{{ event.user_name }}</td>
               <td class="text-gray-300 px-4 py-2">{{ event.description }}</td>
+              <td class="text-gray-300 px-4 py-2">{{ event.external_link }}</td>
               <td class="text-gray-300 px-4 py-2">
                 <ul class="list-disc space-y-2">
                   {% for image in event.event_images %}
