@@ -10,9 +10,7 @@
 # Authors
 
 - [Shashwat Shikhar Singh](https://github.com/shashwatshikharsingh)
-- [Hardik Sharma](https://github.com/hardiksharma23)
-- [Tushar Harsan](https://github.com/TusharHarsan)
-- [Rachell](https://github.com/Richie3935)
+
 
 # Project Overview
 
@@ -103,6 +101,21 @@ project/
 ```
 
 # Deployment
+
+# Deployment Guide for Render
+
+1. **Create a New Web Service:**
+   - Log into your Render dashboard and create a new web service.
+   - Choose a name for your service and select the GitHub repository.
+   - Click the "Create Web Service" button.
+2. **Configure Build and Start Commands:**
+   - In the "Environment" tab, set the build command to `pip install -r requirements.txt`.
+   - Set the start command to `gunicorn app:app`.
+3. **Deploy Your Application:**
+   - Click the "Deploy" button to deploy your application.
+4. **Access Your Application:**
+   - Once the deployment is complete, access your application using the provided URL.
+
 ## Deployment Guide for Solace Studio Website
 
 Deploying a our Website on a Linux VPS, such as DigitalOcean, involves several steps, from setting up the server to configuring the web server and running the Flask app. This guide will walk you through the process, ensuring your Flask application is securely and efficiently hosted.
